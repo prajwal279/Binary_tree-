@@ -2,6 +2,7 @@ from django.shortcuts import render
 from .forms import MemberForm
 from .models import Tree_structure
 from django.db.models import F
+from django.db import connection
 
 def build_new_tree(request):
     if request.method == 'POST':
@@ -10,6 +11,8 @@ def build_new_tree(request):
             num_members = form.cleaned_data['num_members']
             values = list(range(1,num_members+1))
             Tree_structure.objects.all().delete()
+            # with connection.cursor() as cursor:
+                # cursor.execute("ALTER TABLE placement_tree_structure AUTO_INCREMENT = 1;")
             for value in values:
                 add_node(value)
                 

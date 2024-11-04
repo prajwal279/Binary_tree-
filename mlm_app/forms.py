@@ -28,4 +28,4 @@ class MLMCalculationForm(forms.Form):
         ('sponsor', 'Sponsor Bonus'),
         ('total', 'Total Bonus'),
     ]
-    bonus_type = forms.ChoiceField(choices=BONUS_TYPE_CHOICES)
+    capping_scope = forms.ChoiceField(choices=BONUS_TYPE_CHOICES)
