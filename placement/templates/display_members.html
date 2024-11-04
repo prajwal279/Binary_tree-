@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tree Structure</title>
+</head>
+<body>
+    <h1>Tree Structure</h1>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Parent ID</th>
+            <th>Position</th>
+            <th>Level</th>
+            <th>LEFT</th>
+            <th>RIGHT</th>
+        </tr>
+        {% for node in nodes %}
+            <tr>
+                <td>{{ node.userid }}</td>
+                <td>{{ node.parentid.userid }}</td>
+                <td>{{ node.position|default:"NULL" }}</td>
+                <td>{{ node.levels }}</td>
+                <td>{{ node.lft }}</td>
+                <td>{{ node.rgt }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    <br>
+</body>
+</html>
+
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=tab, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <table>
+        <thead>
+            <tr>
+                <th>user_id</th>
+                <th>parent_id</th>
+                <th>position</th>
+                <th>levels</th>
+                <th>left</th>
+                <th>right</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in result %}
+            <tr>
+                <td>{{user.userid}}</td>
+                <td>{{user.parentid}}</td>
+                <td>{{user.position}}</td>
+                <td>{{user.levels}}</td>
+                <td>{{user.lft}}</td>
+                <td>{{user.rgt}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html> {% endcomment %}

@@ -1,0 +1,35 @@
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }} 
+    <input type="submit" value="Simulate">
+</form>
+
+{% comment %} <h2>MLM CALCULATOR</h2>
+<form method="post">
+    {% csrf_token %}
+    <label>Base Currency</label>
+    <input type="text" name="base_currency"><br>
+
+    <label>Joining Package Fee</label>
+    <input type="number" name="Joining_Package_Fee">
+
+    <label>Additional Product Price</label>
+    <input type="number" name="Additional_Product_Price"><br>
+
+    <label>Number of Levels</label>
+    <input type="number" name="Number_of_Levels">
+
+    <label>Sponsor Bonus</label>
+    <input type="number" name="Sponsor_Bonus"><br>
+
+    <label>Binary Bonus</label>
+    <input type="number" name="Binary_Bonus">
+
+    <label>Matching Bonus</label>
+    <input type="number" name="Matching_Bonus"><br>
+
+    <label>Matching Bonus Levels</label>
+    <input type="number" name="Matching_Bonus_Levels"><br>
+
+    <button type="submit">Simulate</button>
+</form> {% endcomment %}
