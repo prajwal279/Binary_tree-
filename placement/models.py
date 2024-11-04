@@ -7,6 +7,8 @@ class Tree_structure(models.Model):
     levels = models.IntegerField()
     lft = models.IntegerField()
     rgt = models.IntegerField()
+    left = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='left_child')
+    right = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='right_child')
     
     def __str__(self):
         return f"Node: {self.userid}, Levels: {self.levels}"
