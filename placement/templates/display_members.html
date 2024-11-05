@@ -15,19 +15,25 @@
             <th>Level</th>
             <th>LEFT</th>
             <th>RIGHT</th>
+            <th>LEFT_CHILD</th>
+            <th>RIGHT_CHILD</th>
         </tr>
         {% for node in nodes %}
             <tr>
                 <td>{{ node.userid }}</td>
-                <td>{{ node.parentid.userid }}</td>
+                <td>{{ node.parentid.userid|default:"NULL" }}</td>
                 <td>{{ node.position|default:"NULL" }}</td>
                 <td>{{ node.levels }}</td>
                 <td>{{ node.lft }}</td>
                 <td>{{ node.rgt }}</td>
+                <td>{{ node.left.userid|default:"NULL" }}</td>
+                <td>{{ node.right.userid|default:"NULL" }}</td>
             </tr>
         {% endfor %}
     </table>
     <br>
+    <tr><td>Sponsor Bonus:</td><td>{{ sponsor_bonus }} INR</td></tr>
+    <tr><td>Binary Bonus:</td><td>{{ binary_bonus }} INR</td></tr>
 </body>
 </html>
 
