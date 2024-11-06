@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tree Structure</title>
+</head>
+<body>
+    <h1>Tree Structure</h1>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Parent ID</th>
+            <th>Position</th>
+            <th>Level</th>
+            <th>LEFT</th>
+            <th>RIGHT</th>
+            <th>LEFT_CHILD</th>
+            <th>RIGHT_CHILD</th>
+            <th>Sponsor Bonus</th>
+            <th>Binary Bonus</th>
+            <th>Matching Bonus</th>
+        </tr>
+        {% for node in nodes %}
+            <tr>
+                <td>{{ node.userid }}</td>
+                <td>{{ node.parentid.userid|default:"NULL" }}</td>
+                <td>{{ node.position|default:"NULL" }}</td>
+                <td>{{ node.levels }}</td>
+                <td>{{ node.lft }}</td>
+                <td>{{ node.rgt }}</td>
+                <td>{{ node.left.userid|default:"NULL" }}</td>
+                <td>{{ node.right.userid|default:"NULL" }}</td>
+                <td>{{ node.sponsor_bonus }}</td>
+                <td>{{ node.binary_bonus }}</td>
+                <td>{{ node.matching_bonus }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    <br>
+    <tr><td>Sponsor Bonus:</td><td>{{ sponsor_bonus }} INR</td></tr>
+    <tr><td>Binary Bonus:</td><td>{{ binary_bonus }} INR</td></tr>
+    {% comment %} <tr><td>Matching Bonus:</td><td>{{ matching_bonus }} INR</td></tr> {% endcomment %}
+</body>
+</html>
