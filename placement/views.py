@@ -2,37 +2,23 @@ from django.shortcuts import render
 from .forms import MemberForm
 from .models import Tree_structure
 from django.db.models import F
-
-# def calculate_binary_bonus(nodes, joining_package_fee, binary_bonus_percent):
-#     binary_bonus_percent = binary_bonus_percent / 100  
-#     total_binary_bonus = 0.0
-    
+from decimal import Decimal
+# def calculate_matching_bonus(nodes, matching_bonus_percent, joining_package_fee, matching_bonus_levels):
+#     total_matching_bonus = 0
+#     nodes=Tree_structure.objects.all()
 #     for node in nodes:
-       
-#         left_count = 0
-#         right_count = 0
-        
-#         left_nodes = Tree_structure.objects.filter(lft__gt=node.lft, rgt__lt=node.rgt)
-#         left_count = left_nodes.count()
-
-#         right_nodes = Tree_structure.objects.filter(lft__gt=node.lft, rgt__lt=node.rgt)
-#         right_count = right_nodes.count()
-
-#         print("Left Count:", left_count)
-#         print("Right Count:", right_count)
-
-#         if left_count > 0 and right_count > 0:
-#             left_sv = left_count * joining_package_fee
-#             right_sv = right_count * joining_package_fee
-#             binary_bonus_value = min(left_sv, right_sv) * binary_bonus_percent
-#             total_binary_bonus += binary_bonus_value
-#             node.binary_bonus = binary_bonus_value
-#             node.save()
-#         else:
-#             node.binary_bonus = 0
-#             node.save()
-
-#     return total_binary_bonus
+#         if node.binary_bonus and node.parentid:
+#             parent = node.parentid
+#             matching_bonus = (node.binary_bonus * matching_bonus_percent) / 100
+#             parent.matching_bonus = matching_bonus
+#             parent.save()
+def calculate_sponsor_bonus(nodes, sponsor_bonus_percent, joining_package_fee):
+    bonus = 0
+    for node in nodes:
+        child_count = node.child.count()
+        bonus += child_count * sponsor_bonus_percent/100 * joining_package_fee
+    return bonus
+     
 
 def calculate_binary_bonus(nodes, joining_package_fee, binary_bonus_percent):
     binary_bonus_percent = binary_bonus_percent / 100  
@@ -43,12 +29,10 @@ def calculate_binary_bonus(nodes, joining_package_fee, binary_bonus_percent):
         right_count = 0
         
         if node.left:
-            left_count = 1 + count_subtree_nodes(node.left)
-            print("Left Count:",left_count)
+            left_count =  count_subtree_nodes(node.left)
         
         if node.right:
-            right_count = 1 + count_subtree_nodes(node.right)
-            print("Right Count:",right_count)
+            right_count =  count_subtree_nodes(node.right)
 
         if left_count > 0 and right_count > 0:
             left_sv = left_count * joining_package_fee
@@ -64,12 +48,39 @@ def calculate_binary_bonus(nodes, joining_package_fee, binary_bonus_percent):
 
     return total_binary_bonus
 
-
 def count_subtree_nodes(node):
-    num = Tree_structure.objects.filter(lft__gt=node.lft, rgt__lt=node.rgt).count()
-    print("NUM:",num)
+    num = Tree_structure.objects.filter(lft__gte=node.lft, rgt__lte=node.rgt).count()
     return num
 
+def calculate_matching_bonus(matching_bonus_percent):
+    nodes = Tree_structure.objects.all()
+    for node in nodes:
+        node.matching_bonus = 0
+        node.save()
+
+    node_levels = {}
+    for node in nodes:
+        if node.levels not in node_levels:
+            node_levels[node.levels] = []
+        node_levels[node.levels].append(node)
+
+    max_level = max(node_levels.keys())
+    for level in range(max_level, -1, -1):
+        for node in node_levels[level]:
+            current_node = node
+            for i in range(1, max(matching_bonus_percent.keys()) + 1):
+                if i in matching_bonus_percent:
+                    bonus_percent = matching_bonus_percent[i]
+                    if current_node.parentid:
+                        parent = Tree_structure.objects.get(userid=current_node.parentid.userid)
+                        matching_bonus = (float(node.binary_bonus) * float(bonus_percent)) / 100
+                        parent.matching_bonus += matching_bonus
+                        parent.save()
+                        current_node = parent
+                        print(parent.matching_bonus)
+                    else:
+                        break
+    return sum(node.matching_bonus for node in nodes)
 
 def build_new_tree(request):
     if request.method == 'POST':
@@ -79,6 +90,16 @@ def build_new_tree(request):
             joining_package_fee = form.cleaned_data['joining_package_fee']
             sponsor_bonus_percent = form.cleaned_data['sponsor_bonus_percent']
             binary_bonus_percent = form.cleaned_data['binary_bonus_percent']
+            matching_bonus_percents = [int(level.strip()) for level in form.cleaned_data['matching_bonus_percent'].split(",")]
+            matching_bonus_percent = {index + 1: value for index, value in enumerate(matching_bonus_percents)}
+            # matching_bonus_levels = len(matching_bonus_percents)
+            # print(matching_bonus_percent)
+            #matching_bonus_percent = {matching_bonus_percent}
+            # for i in range(1, matching_bonus_levels + 1):
+            #     level_field = f'matching_bonus_level_{i}'
+            #     if form.cleaned_data.get(level_field):
+            #         matching_bonus_percent[i] = form.cleaned_data[level_field]
+                    
             values = list(range(1,num_members+1))
             Tree_structure.objects.all().delete()
             for value in values:
@@ -95,11 +116,15 @@ def build_new_tree(request):
                     elif node.position == 'right':
                         parent[0].right = node
                     parent[0].save()
-                    
+            
             nodes = Tree_structure.objects.all()
             sponsor_bonus = calculate_sponsor_bonus(nodes, sponsor_bonus_percent, joining_package_fee) 
             binary_bonus = calculate_binary_bonus(nodes, binary_bonus_percent, joining_package_fee)
-            return render(request, 'display_members.html', {'nodes': nodes,'sponsor_bonus': sponsor_bonus,'binary_bonus': binary_bonus})
+            matching_bonus = calculate_matching_bonus(matching_bonus_percent)
+            for i in nodes:
+                print(i.matching_bonus)
+            nodes = Tree_structure.objects.all()
+            return render(request, 'display_members.html', {'nodes': nodes,'sponsor_bonus': sponsor_bonus,'binary_bonus': binary_bonus, 'matching_bonus': matching_bonus})
     else:
         form = MemberForm()
     return render(request, 'input.html', {'form': form})
@@ -156,19 +181,7 @@ def add_node(userid):
     
 
         
-def calculate_sponsor_bonus(nodes, sponsor_bonus_percent, joining_package_fee):
-    bonus = 0
-    for node in nodes:
-        child_count = node.child.count()
-        bonus += child_count * sponsor_bonus_percent/100 * joining_package_fee
-    return bonus
-       
-
-
-def customized_preorder(curr):
-    if curr is None or curr.left is None and curr.right is None:
-        return []
-    return [curr.userid] + customized_preorder(curr.left) + customized_preorder(curr.right)
+  
 
 
     

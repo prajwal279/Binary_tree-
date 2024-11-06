@@ -17,6 +17,8 @@
             <th>RIGHT</th>
             <th>LEFT_CHILD</th>
             <th>RIGHT_CHILD</th>
+            <th>Binary Bonus</th>
+            <th>Matching Bonus</th>
         </tr>
         {% for node in nodes %}
             <tr>
@@ -28,46 +30,14 @@
                 <td>{{ node.rgt }}</td>
                 <td>{{ node.left.userid|default:"NULL" }}</td>
                 <td>{{ node.right.userid|default:"NULL" }}</td>
+                <td>{{ node.binary_bonus }}</td>
+                <td>{{ node.matching_bonus }}</td>
             </tr>
         {% endfor %}
     </table>
     <br>
     <tr><td>Sponsor Bonus:</td><td>{{ sponsor_bonus }} INR</td></tr>
     <tr><td>Binary Bonus:</td><td>{{ binary_bonus }} INR</td></tr>
+    {% comment %} <tr><td>Matching Bonus:</td><td>{{ matching_bonus }} INR</td></tr> {% endcomment %}
 </body>
 </html>
-
-{% comment %} <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=tab, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <table>
-        <thead>
-            <tr>
-                <th>user_id</th>
-                <th>parent_id</th>
-                <th>position</th>
-                <th>levels</th>
-                <th>left</th>
-                <th>right</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in result %}
-            <tr>
-                <td>{{user.userid}}</td>
-                <td>{{user.parentid}}</td>
-                <td>{{user.position}}</td>
-                <td>{{user.levels}}</td>
-                <td>{{user.lft}}</td>
-                <td>{{user.rgt}}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</body>
-</html> {% endcomment %}

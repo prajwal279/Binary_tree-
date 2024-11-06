@@ -9,9 +9,7 @@ class Tree_structure(models.Model):
     rgt = models.IntegerField()
     left = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='left_child')
     right = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='right_child')
-    # binary_bonus = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     binary_bonus = models.FloatField(default=0.0)
+    matching_bonus = models.FloatField(default=0.0)
 
     
-    # def __str__(self):
-    #     return f"Node: {self.userid}, Levels: {self.levels}, Binary Bonus: {self.binary_bonus}"
