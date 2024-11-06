@@ -18,7 +18,10 @@ class BinaryTree(models.Model):
 
 class Compensations(models.Model):
     sponsor_bonus_percent = models.FloatField()
+<<<<<<< HEAD
     bonus_type = models.FloatField(default=0.0)
+=======
+>>>>>>> 4d56f01fc16c767cc53850b70ca2e313e3429cce
     binary_pairs = models.IntegerField()
     binary_bonus_percent = models.FloatField()
     matching_bonus_percent = models.FloatField()

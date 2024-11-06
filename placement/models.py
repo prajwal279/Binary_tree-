@@ -9,7 +9,10 @@ class Tree_structure(models.Model):
     rgt = models.IntegerField()
     left = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='left_child')
     right = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='right_child')
+<<<<<<< HEAD
     sponsor_bonus = models.FloatField(default=0.0)
+=======
+>>>>>>> 4d56f01fc16c767cc53850b70ca2e313e3429cce
     binary_bonus = models.FloatField(default=0.0)
     matching_bonus = models.FloatField(default=0.0)
 
