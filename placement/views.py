@@ -12,15 +12,18 @@ from decimal import Decimal
 #             matching_bonus = (node.binary_bonus * matching_bonus_percent) / 100
 #             parent.matching_bonus = matching_bonus
 #             parent.save()
-def calculate_sponsor_bonus(nodes, sponsor_bonus_percent, joining_package_fee, capping_limit=2147483647):
+def calculate_sponsor_bonus(nodes, sponsor_bonus_percent, joining_package_fee, capping_limit):
     bonus = 0
-    node_sponsor_bonus = 0
+    
     for node in nodes:
+        node_sponsor_bonus = 0
+        node_capping_value = 0
         child_count = node.child.count()
         node_sponsor_bonus += child_count * sponsor_bonus_percent/100 * joining_package_fee
-        if node_sponsor_bonus >= capping_limit:
+        if node_sponsor_bonus > capping_limit:
+            node_capping_value = node_sponsor_bonus - capping_limit
             node_sponsor_bonus = capping_limit
-        
+        node.capping_value = node_capping_value
         bonus += node_sponsor_bonus
         node.sponsor_bonus = node_sponsor_bonus
         node.save()
@@ -32,6 +35,7 @@ def calculate_binary_bonus(nodes, joining_package_fee, binary_bonus_percent, cap
     total_binary_bonus = 0.0
     
     for node in nodes:
+        node_capping_value = 0.0
         left_count = 0
         right_count = 0
         
@@ -46,11 +50,15 @@ def calculate_binary_bonus(nodes, joining_package_fee, binary_bonus_percent, cap
             right_sv = right_count * joining_package_fee
             binary_bonus_value = min(left_sv, right_sv) * binary_bonus_percent
 
-            if binary_bonus_value >= capping_limit:
+            if binary_bonus_value > capping_limit:
+                node_capping_value = binary_bonus_value - capping_limit
                 binary_bonus_value = capping_limit
-
+                
+            else:
+                node_capping_value = 0
             total_binary_bonus += binary_bonus_value
             node.binary_bonus = binary_bonus_value
+            node.capping_value = node_capping_value
             node.save()
         else:
             node.binary_bonus = 0
@@ -76,9 +84,10 @@ def calculate_matching_bonus(nodes, matching_bonus_percent, capping_limit=214748
 
     max_level = max(node_levels.keys())
     for level in range(max_level, -1, -1):
+        
         for node in node_levels[level]:
             current_node = node
-            
+            node_capping_value = 0
             for i in range(1, max(matching_bonus_percent.keys()) + 1):
                 if i in matching_bonus_percent:
                     bonus_percent = matching_bonus_percent[i]
@@ -86,14 +95,18 @@ def calculate_matching_bonus(nodes, matching_bonus_percent, capping_limit=214748
                         parent = Tree_structure.objects.get(userid=current_node.parentid.userid)
                         matching_bonus = (float(node.binary_bonus) * float(bonus_percent)) / 100
                         old_matching_bonus = parent.matching_bonus
-                        if old_matching_bonus + matching_bonus >= capping_limit:
+                        if old_matching_bonus + matching_bonus > capping_limit:
+                            node_capping_value = (parent.matching_bonus + matching_bonus) - capping_limit
                             parent.matching_bonus = capping_limit
                         else:
                             parent.matching_bonus = old_matching_bonus + matching_bonus
-                        parent.save()
+                        node.capping_value = node_capping_value
+                        parent.save() 
                         current_node = parent
                     else:
                         break
+            
+                    
     return sum(node.matching_bonus for node in nodes)
 
 def build_new_tree(request):
@@ -127,7 +140,7 @@ def build_new_tree(request):
                     parent[0].save()
                 
             nodes = Tree_structure.objects.all()
-            sponsor_bonus = calculate_sponsor_bonus(nodes, sponsor_bonus_percent, joining_package_fee) 
+            sponsor_bonus = calculate_sponsor_bonus(nodes, sponsor_bonus_percent, joining_package_fee,capping_limit) 
             nodes = Tree_structure.objects.all()
             binary_bonus = calculate_binary_bonus(nodes, binary_bonus_percent, joining_package_fee)
             nodes = Tree_structure.objects.all()

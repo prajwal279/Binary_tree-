@@ -17,10 +17,10 @@
             <th>RIGHT</th>
             <th>LEFT_CHILD</th>
             <th>RIGHT_CHILD</th>
-
             <th>Sponsor Bonus</th>
             <th>Binary Bonus</th>
             <th>Matching Bonus</th>
+            <th>Capping Value</th>
         </tr>
         {% for node in nodes %}
             <tr>
@@ -35,6 +35,7 @@
                 <td>{{ node.sponsor_bonus }}</td>
                 <td>{{ node.binary_bonus }}</td>
                 <td>{{ node.matching_bonus }}</td>
+                <td>{{ node.capping_value }}</td>
             </tr>
         {% endfor %}
     </table>

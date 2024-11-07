@@ -12,3 +12,4 @@ class Tree_structure(models.Model):
     sponsor_bonus = models.FloatField(default=0.0)
     binary_bonus = models.FloatField(default=0.0)
     matching_bonus = models.FloatField(default=0.0)
+    capping_value = models.FloatField(default=0.0)
