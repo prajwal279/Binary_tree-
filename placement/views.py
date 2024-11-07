@@ -63,8 +63,7 @@ def count_subtree_nodes(node):
     num = Tree_structure.objects.filter(lft__gte=node.lft, rgt__lte=node.rgt).count()
     return num
 
-def calculate_matching_bonus(matching_bonus_percent, capping_limit=2147483647):
-    nodes = Tree_structure.objects.all()
+def calculate_matching_bonus(nodes, matching_bonus_percent, capping_limit=2147483647):
     for node in nodes:
         node.matching_bonus = 0
         node.save()
@@ -109,13 +108,6 @@ def build_new_tree(request):
             capping_scope = form.cleaned_data['capping_scope']
             matching_bonus_percents = [int(level.strip()) for level in form.cleaned_data['matching_bonus_percent'].split(",")]
             matching_bonus_percent = {index + 1: value for index, value in enumerate(matching_bonus_percents)}
-            # matching_bonus_levels = len(matching_bonus_percents)
-            # print(matching_bonus_percent)
-            #matching_bonus_percent = {matching_bonus_percent}
-            # for i in range(1, matching_bonus_levels + 1):
-            #     level_field = f'matching_bonus_level_{i}'
-            #     if form.cleaned_data.get(level_field):
-            #         matching_bonus_percent[i] = form.cleaned_data[level_field]
                     
             values = list(range(1,num_members+1))
             Tree_structure.objects.all().delete()
@@ -136,18 +128,26 @@ def build_new_tree(request):
                 
             nodes = Tree_structure.objects.all()
             sponsor_bonus = calculate_sponsor_bonus(nodes, sponsor_bonus_percent, joining_package_fee) 
+            nodes = Tree_structure.objects.all()
             binary_bonus = calculate_binary_bonus(nodes, binary_bonus_percent, joining_package_fee)
-            matching_bonus = calculate_matching_bonus(matching_bonus_percent)
+            nodes = Tree_structure.objects.all()
+            matching_bonus = calculate_matching_bonus(nodes, matching_bonus_percent)
             if capping_scope == 'binary':
+                nodes = Tree_structure.objects.all()
                 binary_bonus = calculate_binary_bonus(nodes, binary_bonus_percent, joining_package_fee, capping_limit)
             elif capping_scope == 'sponsor':
+                nodes = Tree_structure.objects.all()
                 sponsor_bonus = calculate_sponsor_bonus(nodes, sponsor_bonus_percent, joining_package_fee, capping_limit) 
             elif capping_scope == 'matching':
-                matching_bonus = calculate_matching_bonus(matching_bonus_percent, capping_limit)
-            else:
+                nodes = Tree_structure.objects.all()
+                matching_bonus = calculate_matching_bonus(nodes, matching_bonus_percent, capping_limit)
+            elif capping_scope == 'total':
+                nodes = Tree_structure.objects.all()
                 binary_bonus = calculate_binary_bonus(nodes, binary_bonus_percent, joining_package_fee, capping_limit)
+                nodes = Tree_structure.objects.all()
                 sponsor_bonus = calculate_sponsor_bonus(nodes, sponsor_bonus_percent, joining_package_fee, capping_limit)
-                matching_bonus = calculate_matching_bonus(matching_bonus_percent, capping_limit)
+                nodes = Tree_structure.objects.all()
+                matching_bonus = calculate_matching_bonus(nodes, matching_bonus_percent, capping_limit)
             nodes = Tree_structure.objects.all()
             return render(request, 'display_members.html', {'nodes': nodes,'sponsor_bonus': sponsor_bonus,'binary_bonus': binary_bonus, 'matching_bonus': matching_bonus})
     else:
@@ -160,7 +160,6 @@ def add_node(userid):
         return  
 
     new_node = Tree_structure(userid=userid)
-    
     
     if not Tree_structure.objects.exists():
         new_node.parentid = None  
@@ -202,128 +201,3 @@ def add_node(userid):
                 new_node.save()
                 return
         curr_level += 1
-    
-
-        
-  
-
-
-    
-    
-    
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-
-
-  
-
-    
-# def calculate_binary_bonus(nodes, joining_package_fee, binary_bonus_percent):
-#     binary_bonus_percent = binary_bonus_percent / 100 
-
-#     def count_subtree_nodes(node):
-#         return Tree_structure.objects.filter(
-#             lft__gt=node.lft,
-#             rgt__lt=node.rgt
-#         ).count()
-
-#     def calculate_for_node(node):
-#         left_count = count_subtree_nodes(node.left) if node.left else 0
-#         right_count = count_subtree_nodes(node.right) if node.right else 0
-        
-#         left_count += 1 if node.left else 0
-#         right_count += 1 if node.right else 0
-
-#         if left_count == 0 or right_count == 0:
-#             node.binary_bonus = 0.0
-#         else:
-#             left_sv = left_count * joining_package_fee
-#             right_sv = right_count * joining_package_fee
-
-
-#             binary_bonus_value = min(left_sv, right_sv) * binary_bonus_percent
-#             node.binary_bonus = binary_bonus_value
-#         node.save()
-
-#         if node.left:
-#             calculate_for_node(node.left)
-#         if node.right:
-#             calculate_for_node(node.right)
-
-#     total_binary_bonus = 0.0
-#     for node in nodes:
-#         node.binary_bonus = 0.0  
-#         calculate_for_node(node)  
-#         total_binary_bonus += node.binary_bonus  
-#     return total_binary_bonus
-
-
-
-# def calculate_binary_bonus(nodes, joining_package_fee, binary_bonus_percent):
-
-#     binary_bonus_percent = binary_bonus_percent / 100
-
-#     def calculate_for_node(node):
-       
-#         left_count = Tree_structure.objects.filter(parentid=node, position='left').count()
-#         right_count = Tree_structure.objects.filter(parentid=node, position='right').count()
-#         if left_count == 0 or right_count == 0:
-#             node.binary_bonus = 0.0
-#         else:
-#             left_sv = left_count * joining_package_fee
-#             right_sv = right_count * joining_package_fee
-
-           
-#             binary_bonus_value = min(left_sv, right_sv)
-#             node.binary_bonus = binary_bonus_value * binary_bonus_percent
-
-#         if node.left:
-#             node.left.binary_bonus += node.binary_bonus
-#             calculate_for_node(node.left)
-
-#         if node.right:
-#             node.right.binary_bonus += node.binary_bonus
-#             calculate_for_node(node.right)
-
-#     total_binary_bonus = 0.0
-#     for node in nodes:
-#         node.binary_bonus = 0.0
-#         calculate_for_node(node)
-#         total_binary_bonus += node.binary_bonus
-
-#     return total_binary_bonus
-
-
