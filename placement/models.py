@@ -13,3 +13,4 @@ class Tree_structure(models.Model):
     binary_bonus = models.FloatField(default=0.0)
     matching_bonus = models.FloatField(default=0.0)
     capping_value = models.FloatField(default=0.0)
+    carry = models.FloatField(default=0.0)

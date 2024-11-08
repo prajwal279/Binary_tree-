@@ -20,7 +20,8 @@
             <th>Sponsor Bonus</th>
             <th>Binary Bonus</th>
             <th>Matching Bonus</th>
-            <th>Capping Value</th>
+            <th>Flushed Amount</th>
+            <th>Carry Forward</th>
         </tr>
         {% for node in nodes %}
             <tr>
@@ -36,6 +37,7 @@
                 <td>{{ node.binary_bonus }}</td>
                 <td>{{ node.matching_bonus }}</td>
                 <td>{{ node.capping_value }}</td>
+                <td>{{ node.carry }}</td>
             </tr>
         {% endfor %}
     </table>
