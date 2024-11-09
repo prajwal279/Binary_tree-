@@ -3,15 +3,7 @@ from .forms import MemberForm
 from .models import Tree_structure
 from django.db.models import F
 from decimal import Decimal
-# def calculate_matching_bonus(nodes, matching_bonus_percent, joining_package_fee, matching_bonus_levels):
-#     total_matching_bonus = 0
-#     nodes=Tree_structure.objects.all()
-#     for node in nodes:
-#         if node.binary_bonus and node.parentid:
-#             parent = node.parentid
-#             matching_bonus = (node.binary_bonus * matching_bonus_percent) / 100
-#             parent.matching_bonus = matching_bonus
-#             parent.save()
+
 def calculate_sponsor_bonus(nodes, sponsor_bonus_percent, joining_package_fee, capping_limit=2147483647):
     bonus = 0
     
@@ -30,7 +22,7 @@ def calculate_sponsor_bonus(nodes, sponsor_bonus_percent, joining_package_fee, c
     return bonus
      
 
-def calculate_binary_bonus(nodes, binary_bonus_percent, joining_package_fee, carry_yes_no, capping_limit=2147483647):
+def calculate_binary_bonus(nodes, binary_bonus_percent, joining_package_fee, capping_limit=2147483647):
     binary_bonus_percent = binary_bonus_percent / 100  
     total_binary_bonus = 0.0
 
@@ -50,16 +42,6 @@ def calculate_binary_bonus(nodes, binary_bonus_percent, joining_package_fee, car
             left_sv = left_count * joining_package_fee
             right_sv = right_count * joining_package_fee
             weak_leg_value = min(left_sv, right_sv)
-            
-            if carry_yes_no == 'yes':
-                if weak_leg_value == left_sv:
-                    node.right.carry = right_sv - left_sv
-                    node.right.save()
-                    print(node.right.carry)
-                else:
-                    node.left.carry = left_sv - right_sv
-                    node.left.save()
-                    print(node.left.carry)
             
             binary_bonus_value = weak_leg_value * binary_bonus_percent
             if binary_bonus_value > capping_limit:
@@ -87,7 +69,6 @@ def calculate_carry_forward(nodes, binary_bonus_percent, joining_package_fee, ca
     total_binary_bonus = 0.0
 
     for node in nodes:
-        node_capping_value = 0.0
         left_count = 0
         right_count = 0
         
@@ -111,11 +92,9 @@ def calculate_carry_forward(nodes, binary_bonus_percent, joining_package_fee, ca
                 if weak_leg_value == left_sv:
                     node.right.carry = right_sv - left_sv
                     node.right.save()
-                    print(node.right.carry)
                 else:
                     node.left.carry = left_sv - right_sv
                     node.left.save()
-                    print(node.left.carry)
     return [(node.left,node.right) for node in nodes]
 
 def calculate_matching_bonus(nodes, matching_bonus_percent, capping_limit=2147483647):
@@ -190,7 +169,7 @@ def build_new_tree(request):
             nodes = Tree_structure.objects.all()
             sponsor_bonus = calculate_sponsor_bonus(nodes, sponsor_bonus_percent, joining_package_fee) 
             nodes = Tree_structure.objects.all()
-            binary_bonus = calculate_binary_bonus(nodes, binary_bonus_percent, joining_package_fee, carry_yes_no)
+            binary_bonus = calculate_binary_bonus(nodes, binary_bonus_percent, joining_package_fee)
             nodes = Tree_structure.objects.all()
             matching_bonus = calculate_matching_bonus(nodes, matching_bonus_percent)
             if capping_scope == 'binary':
@@ -204,7 +183,7 @@ def build_new_tree(request):
                 matching_bonus = calculate_matching_bonus(nodes, matching_bonus_percent, capping_limit)
             elif capping_scope == 'total':
                 nodes = Tree_structure.objects.all()
-                binary_bonus = calculate_binary_bonus(nodes, binary_bonus_percent, joining_package_fee, carry_yes_no, capping_limit)
+                binary_bonus = calculate_binary_bonus(nodes, binary_bonus_percent, joining_package_fee, capping_limit)
                 nodes = Tree_structure.objects.all()
                 sponsor_bonus = calculate_sponsor_bonus(nodes, sponsor_bonus_percent, joining_package_fee, capping_limit)
                 nodes = Tree_structure.objects.all()
